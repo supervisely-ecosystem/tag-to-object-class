@@ -226,6 +226,10 @@ if __name__ == '__main__':
         },
     )
 
+    print(f'{g.selected_tags=!s}')
+    print(f'{g.selected_tags=!r}')
+    print(type(g.selected_tags))
+
     user_selected_tags = json.loads(g.selected_tags)
     sly.logger.debug(f'Decoded: {user_selected_tags=}')
     tags_to_classes(g.api, user_selected_tags, g.res_project_name)
