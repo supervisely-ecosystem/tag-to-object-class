@@ -1,0 +1,8 @@
+<sly-field>
+    <sly-field title="Tags for conversion" :description="data.selectedTags.description">
+      <sly-select-tag title="New project name" :project-id="state.slyProjectId" :tags.sync="state.selectedTags.tags" :options="data.selectedTags.options"></sly-select-tag>
+    </sly-field>
+    <sly-field title="New project name" :description="data.resultProjectName.description">
+      <el-input v-model="state.resultProjectName"></el-input>
+    </sly-field>
+</sly-field>
