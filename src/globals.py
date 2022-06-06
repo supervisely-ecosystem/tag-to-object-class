@@ -1,3 +1,4 @@
+import ast
 import os
 import sys
 
@@ -27,5 +28,7 @@ workspace_id = int(os.environ['context.workspaceId'])
 project_id = int(os.environ['modal.state.slyProjectId'])
 
 selected_tags = os.environ['modal.state.selectedTags.tags']
+selected_tags = ast.literal_eval(selected_tags)
+assert isinstance(selected_tags, list) and all(isinstance(item, str) for item in selected_tags)
 res_project_name = os.getenv('modal.state.resultProjectName', None)
 anns_in_memory_limit = os.getenv('ANNS_IN_MEMORY_LIMIT', 1000)

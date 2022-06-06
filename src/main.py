@@ -146,7 +146,7 @@ class AnnConvertor:
 
 
 @sly.timeit
-def tags_to_classes(api: sly.Api, selected_tags: str, result_project_name: str):
+def tags_to_classes(api: sly.Api, selected_tags: List[str], result_project_name: str):
     project = ProjectCommons(api, g.project_id)
 
     if not result_project_name:
@@ -226,13 +226,7 @@ if __name__ == '__main__':
         },
     )
 
-    print(f'{g.selected_tags=!s}')
-    print(f'{g.selected_tags=!r}')
-    print(type(g.selected_tags))
-    user_selected_tags = ast.literal_eval(g.selected_tags)
-    print(type(user_selected_tags))
-    sly.logger.debug(f'Decoded: {user_selected_tags=}')
-    tags_to_classes(g.api, user_selected_tags, g.res_project_name)
+    tags_to_classes(g.api, g.selected_tags, g.res_project_name)
 
     try:
         sly.app.fastapi.shutdown()
