@@ -1,3 +1,4 @@
+import json
 from typing import List, Set
 
 import debug_load_envs  # before import sly
@@ -225,7 +226,9 @@ if __name__ == '__main__':
         },
     )
 
-    # tags_to_classes(g.api, g.selected_tags, g.res_project_name)
+    user_selected_tags = json.loads(g.selected_tags)
+    sly.logger.debug(f'Decoded: {user_selected_tags=}')
+    tags_to_classes(g.api, user_selected_tags, g.res_project_name)
 
     try:
         sly.app.fastapi.shutdown()
