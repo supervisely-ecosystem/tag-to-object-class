@@ -146,11 +146,6 @@ class AnnConvertor:
 
 @sly.timeit
 def tags_to_classes(api: sly.Api, selected_tags: str, result_project_name: str):
-    # selected_tags = ['car', 'dog', 'person', 'bike', 'like', 'test tag 0 imgonly', 'test tag 1 objonly']
-    # selected_tags = ['car', 'dog', 'person', 'bike', 'like', 'test tag 0 imgonly']
-    # selected_tags = ['car', 'dog', 'person', 'like', 'test tag 0 imgonly', 'bike_test_save']
-    selected_tags = ['bicycle', 'bird', 'boat', 'bottle', 'bus', 'car', 'cat', 'chair', 'cow', 'delme', 'dog', 'gt_class', 'horse', 'motorbike', 'person', 'sheep', 'train', 'train_AUTO_RENAMED']
-
     project = ProjectCommons(api, g.project_id)
 
     if not result_project_name:
@@ -158,11 +153,13 @@ def tags_to_classes(api: sly.Api, selected_tags: str, result_project_name: str):
 
     beware_of_nonexistent_tags(selected_tags, project)
 
-    # if len(project) < g.anns_in_memory_limit:
-    #     ann_cache = AnnMemCache()
-    # else:
-    #     ann_cache = AnnDiskCacheRemovable(g.temp_data_directory)
-    ann_cache = AnnDiskCachePersistent(g.temp_data_directory)   # to debug
+    # Step 0: collect tag associations
+
+    # ann_cache = AnnDiskCachePersistent(g.temp_data_directory)   # to debug
+    if len(project) < g.anns_in_memory_limit:
+        ann_cache = AnnMemCache()
+    else:
+        ann_cache = AnnDiskCacheRemovable(g.temp_data_directory)
     ann_provider = AnnProvider(api, project, ann_cache=ann_cache)
 
     tags_stats_constructor = TagsStatsConstructor(project.meta)
@@ -179,9 +176,13 @@ def tags_to_classes(api: sly.Api, selected_tags: str, result_project_name: str):
     for tag_meta in project.meta.tag_metas:
         debug_log_tag_stats(tag_meta, tags_stats)
 
+    # Step 1: check selected tags
+
     appropriate_tag_names = [t for t in selected_tags if tag_is_appropriate(t, project, tags_stats)]
 
     ensure_tag_set_is_appropriate(appropriate_tag_names, tags_stats)
+
+    # Step 2: convert annotations
 
     meta_constructor = ProjectMetaConstructor(project.meta, tags_stats)
     res_meta = meta_constructor.create_new_project_meta(appropriate_tag_names)
@@ -189,12 +190,12 @@ def tags_to_classes(api: sly.Api, selected_tags: str, result_project_name: str):
     sly.logger.info(f'Resulting classes: {sorted(c.name for c in res_meta.obj_classes)}')
 
     res_project_info = api.project.create(g.workspace_id, result_project_name,
-                                     type=sly.ProjectType.IMAGES, change_name_if_conflict=True)
+                                          type=sly.ProjectType.IMAGES, change_name_if_conflict=True)
     api.project.update_meta(res_project_info.id, res_meta.to_json())
 
     ann_convertor = AnnConvertor(appropriate_tag_names, src_meta=project.meta, res_meta=res_meta)
     ds_map = {}
-    progress = sly.Progress('Converting classes', len(project), min_report_percent=5)
+    progress = sly.Progress('Converting classes', len(project))
     for ds_info, img_ids, img_hashes, img_names in project.iterate_batched():
         res_ds_info = ds_map.get(ds_info.id)
         if res_ds_info is None:

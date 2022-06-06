@@ -2,8 +2,6 @@ import os
 from typing import List
 from collections import defaultdict
 
-import psutil
-
 import supervisely as sly
 from supervisely.io.json import dump_json_file, load_json_file
 
@@ -112,20 +110,3 @@ class AnnProvider:
         res_anns = self._cache.get_anns(dataset_id, img_ids, download_jsons, unpack_ann_json)
         for ann in res_anns:
             yield ann
-
-
-def process_mem_bytes():
-    process = psutil.Process(os.getpid())
-    mem_info = process.memory_info()
-    return mem_info.rss
-
-
-@sly.timeit
-def debug_ann_cache(ann_provider, items_cnt, idx):
-    sly.logger.debug(f'-- BEFORE {idx}:  {process_mem_bytes()=}')
-    progress = sly.Progress('test', items_cnt, min_report_percent=25)
-    for i, ann in enumerate(ann_provider.get_anns()):
-        if 1000 < i < 1005:
-            sly.logger.debug(f'{i=} {len(ann.labels)=}')
-        progress.iter_done_report()
-    sly.logger.debug(f'------------ AFTER {idx}:  {process_mem_bytes()=}')
