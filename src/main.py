@@ -145,6 +145,21 @@ class AnnConvertor:
         return label.clone(obj_class=new_cls, tags=new_tags)
 
 
+class DatasetShadowCreator:
+    def __init__(self, api: sly.Api, res_project_id: int):
+        self._api = api
+        self._res_project_id = res_project_id
+        self._map = {}
+
+    def get_new(self, src_ds_info):
+        res_info = self._map.get(src_ds_info.id)
+        if res_info is None:
+            res_info = self._api.dataset.create(self._res_project_id, src_ds_info.name,
+                                                change_name_if_conflict=True)
+            self._map[res_info.id] = res_info
+        return res_info
+
+
 @sly.timeit
 def tags_to_classes(api: sly.Api, selected_tags: List[str], result_project_name: str):
     project = ProjectCommons(api, g.project_id)
@@ -152,15 +167,16 @@ def tags_to_classes(api: sly.Api, selected_tags: List[str], result_project_name:
     if not result_project_name:
         result_project_name = f'{project.info.name} Untagged'
 
-    beware_of_nonexistent_tags(selected_tags, project)
-
     # Step 0: collect tag associations
+
+    beware_of_nonexistent_tags(selected_tags, project)
 
     # ann_cache = AnnDiskCachePersistent(g.temp_data_directory)   # to debug
     if len(project) < g.anns_in_memory_limit:
         ann_cache = AnnMemCache()
     else:
         ann_cache = AnnDiskCacheRemovable(g.temp_data_directory)
+    sly.logger.debug(f'Ann cache type: {type(ann_cache)}')
     ann_provider = AnnProvider(api, project, ann_cache=ann_cache)
 
     tags_stats_constructor = TagsStatsConstructor(project.meta)
@@ -193,15 +209,13 @@ def tags_to_classes(api: sly.Api, selected_tags: List[str], result_project_name:
     res_project_info = api.project.create(g.workspace_id, result_project_name,
                                           type=sly.ProjectType.IMAGES, change_name_if_conflict=True)
     api.project.update_meta(res_project_info.id, res_meta.to_json())
+    sly.logger.info(f'Resulting project name: {res_project_info.name!r}')
 
     ann_convertor = AnnConvertor(appropriate_tag_names, src_meta=project.meta, res_meta=res_meta)
-    ds_map = {}
+    dataset_creator = DatasetShadowCreator(api, res_project_info.id)
     progress = sly.Progress('Converting classes', len(project))
     for ds_info, img_ids, img_hashes, img_names in project.iterate_batched():
-        res_ds_info = ds_map.get(ds_info.id)
-        if res_ds_info is None:
-            res_ds_info = api.dataset.create(res_project_info.id, ds_info.name, change_name_if_conflict=True)
-            ds_map[ds_info.id] = res_ds_info
+        res_ds_info = dataset_creator.get_new(ds_info)
 
         anns = ann_provider.get_anns_by_img_ids(ds_info.id, img_ids)
         res_anns = [ann_convertor.convert(ann) for ann in anns]
