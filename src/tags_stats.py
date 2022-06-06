@@ -54,7 +54,7 @@ class TagsStats:
     def objects_count(self):
         return self._tags_objects.shape[1]
 
-    def geometry_type(self, tag_name: str) -> type | None:
+    def geometry_type(self, tag_name: str):  # -> type or None:
         g_types = self._tag_to_geom_types.get(tag_name, None)
         if not len or len(g_types) != 1:
             return None
