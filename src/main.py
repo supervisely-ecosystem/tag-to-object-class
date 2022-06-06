@@ -225,7 +225,7 @@ if __name__ == '__main__':
         },
     )
 
-    tags_to_classes(g.api, g.selected_tags, g.res_project_name)
+    # tags_to_classes(g.api, g.selected_tags, g.res_project_name)
 
     try:
         sly.app.fastapi.shutdown()
