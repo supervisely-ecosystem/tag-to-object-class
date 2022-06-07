@@ -155,7 +155,7 @@ class DatasetShadowCreator:
         if res_info is None:
             res_info = self._api.dataset.create(self._res_project_id, src_ds_info.name,
                                                 change_name_if_conflict=True)
-            self._map[res_info.id] = res_info
+            self._map[src_ds_info.id] = res_info
         return res_info
 
 
