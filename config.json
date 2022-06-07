@@ -2,36 +2,16 @@
   "name": "Tags to object classes",
   "type": "app",
   "categories": [
-    "Tag"
+    "Tag",
+    "Project Classes"
   ],
   "description": "Create new object classes from tags associated with objects",
   "docker_image": "supervisely/base-py-sdk:6.17.4",
   "main_script": "src/main.py",
-  "modal_template": "src/modal.html",
-  "modal_template_state": {
-	"selectedTags": {
-		"tags": []
-	}
-  },
-  "modal_template_data": {
-	"selectedTags": {
-		"description": "From which tags new classes will be created.",
-		"options": {
-			"multiple": true,
-			"size": "large",
-			"availableValueTypes": [
-				"none"
-			]
-		}
-	},
-	"resultProjectName": {
-		"description": "Optional. If not set it will be named like \"original_project Untagged\"."
-	}
-  },
+  "gui_template": "src/gui.html",
   "task_location": "workspace_tasks",
   "icon": "https://github.com/supervisely-ecosystem/tag-to-object-class/releases/download/v0.1.0/app-icon.png",
   "icon_background": "#FFFFFF",
-  "headless": true,
   "context_menu": {
     "target": [
       "images_project"

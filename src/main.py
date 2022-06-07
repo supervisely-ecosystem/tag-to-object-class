@@ -1,5 +1,7 @@
+import time
 from typing import List, Set
 
+from fastapi import Request
 import debug_load_envs  # before import sly
 import supervisely as sly
 
@@ -159,8 +161,27 @@ class DatasetShadowCreator:
         return res_info
 
 
+@g.app.get("/gui_btn_test")
+def test_handler(request: Request):
+    sly.logger.info('handler0')
+    return 'mm'
+
+
+@g.app.post("/gui_btn_test")
+def test_handler(request: Request):
+    sly.logger.info('handler1')
+    return 'mm'
+
+
 @sly.timeit
 def tags_to_classes(api: sly.Api, selected_tags: List[str], result_project_name: str):
+    sly.logger.info('main run')
+    while True:
+        sly.logger.info('wait a minute...')
+        time.sleep(60)
+
+
+"""
     project = ProjectCommons(api, g.project_id)
 
     if not result_project_name:
@@ -225,6 +246,7 @@ def tags_to_classes(api: sly.Api, selected_tags: List[str], result_project_name:
         progress.iters_done_report(len(img_ids))
 
     sly.logger.debug('Finished tags_to_classes')
+"""
 
 
 if __name__ == '__main__':
