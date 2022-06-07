@@ -1,5 +1,5 @@
 import os
-from typing import List
+from typing import List, Iterator
 from collections import defaultdict
 
 import supervisely as sly
@@ -95,12 +95,12 @@ class AnnProvider:
         self._project = project
         self._cache = ann_cache if ann_cache else AnnMemCache()
 
-    def get_anns(self):
+    def get_anns(self) -> Iterator[sly.Annotation]:
         for ds_info, img_ids, _, _ in self._project.iterate_batched():
             for ann in self.get_anns_by_img_ids(ds_info.id, img_ids):
                 yield ann
 
-    def get_anns_by_img_ids(self, dataset_id: int, img_ids: List):
+    def get_anns_by_img_ids(self, dataset_id: int, img_ids: List[int]) -> Iterator[sly.Annotation]:
         def download_jsons():
             return [ann_info.annotation for ann_info in self._api.annotation.download_batch(dataset_id, img_ids)]
 

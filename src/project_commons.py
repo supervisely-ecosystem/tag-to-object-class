@@ -13,7 +13,7 @@ class ProjectCommons:
 
         self.ds_img_infos = {ds.id: api.image.get_list(ds.id) for ds in self.ds_infos}
 
-    def iterate_batched(self, batch_size=50):
+    def iterate_batched(self, batch_size: int = 50):
         for ds_info in self.ds_infos:
             img_infos = self.ds_img_infos[ds_info.id]
             for img_infos_batch in sly.batched(img_infos, batch_size=batch_size):

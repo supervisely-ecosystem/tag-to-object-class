@@ -1,4 +1,3 @@
-import ast
 from typing import List, Set
 
 import debug_load_envs  # before import sly
@@ -10,14 +9,14 @@ from tags_stats import TagsStatsConstructor, TagsStats, TagMetaChecks
 import globals as g
 
 
-def beware_of_nonexistent_tags(selected_tags: List[str], project: ProjectCommons):
+def beware_of_nonexistent_tags(selected_tags: List[str], project: ProjectCommons) -> None:
     project_tag_names = set(t.name for t in project.meta.tag_metas)
     nonexistent_tags = [t for t in selected_tags if t not in project_tag_names]
     if len(nonexistent_tags):
         raise ValueError(f'Tags not found in project: {nonexistent_tags}')
 
 
-def debug_log_tag_stats(tag_meta: sly.TagMeta, tags_stats: TagsStats):
+def debug_log_tag_stats(tag_meta: sly.TagMeta, tags_stats: TagsStats) -> None:
     name = tag_meta.name
     tag_checks = TagMetaChecks(tag_meta)
     sly.logger.debug(f'Tag info: {name=} '
@@ -46,7 +45,7 @@ def tag_is_appropriate(tag_name: str, project: ProjectCommons, tags_stats: TagsS
     return False
 
 
-def ensure_tag_set_is_appropriate(tag_names: List[str], tags_stats: TagsStats):
+def ensure_tag_set_is_appropriate(tag_names: List[str], tags_stats: TagsStats) -> None:
     if not tags_stats.have_not_intersected(tag_names):
         example = tags_stats.example_intersected(tag_names)
         raise ValueError(f'Inappropriate tag set: object associated with some tags is found. '
@@ -171,7 +170,7 @@ def tags_to_classes(api: sly.Api, selected_tags: List[str], result_project_name:
 
     beware_of_nonexistent_tags(selected_tags, project)
 
-    # ann_cache = AnnDiskCachePersistent(g.temp_data_directory)   # to debug
+    # ann_cache = AnnDiskCachePersistent(g.temp_data_directory)   # for debugging purposes
     if len(project) < g.anns_in_memory_limit:
         ann_cache = AnnMemCache()
     else:
@@ -199,7 +198,7 @@ def tags_to_classes(api: sly.Api, selected_tags: List[str], result_project_name:
 
     ensure_tag_set_is_appropriate(appropriate_tag_names, tags_stats)
 
-    # Step 2: convert annotations
+    # Step 2: convert annotations & upload
 
     meta_constructor = ProjectMetaConstructor(project.meta, tags_stats)
     res_meta = meta_constructor.create_new_project_meta(appropriate_tag_names)

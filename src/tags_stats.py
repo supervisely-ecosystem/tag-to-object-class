@@ -27,7 +27,8 @@ class TagMetaChecks:
 
 
 class TagsStats:
-    def __init__(self, tags, tag_to_geom_types, tag_to_classes, tags_objects, obj_class_names, tags_with_images):
+    def __init__(self, tags, tag_to_geom_types, tag_to_classes, tags_objects,
+                 obj_class_names, tags_with_images):
         self._tags = tags
         self._tags_sorted = list(sorted(tags))
         self._tags_indices = {idx: t for t, idx in enumerate(self._tags_sorted)}
@@ -40,12 +41,12 @@ class TagsStats:
     def _tags_present(self, tag_names: List[str]) -> List[str]:
         return [t for t in tag_names if t in self._tags]
 
-    def _tags_objects_sliced(self, tag_names: List[str]):
+    def _tags_objects_sliced(self, tag_names: List[str]) -> np.ndarray:
         indices = [self._tags_indices[t] for t in tag_names]
         sliced = self._tags_objects[indices, :]
         return sliced
 
-    def _tags_per_object(self, tag_names: List[str]):
+    def _tags_per_object(self, tag_names: List[str]) -> np.ndarray:
         tags_objs_sliced = self._tags_objects_sliced(tag_names)
         tags_per_object = tags_objs_sliced.sum(axis=0)    # np single row
         return tags_per_object
@@ -127,7 +128,7 @@ class TagsStatsConstructor:
                 self._tag_to_objects[t].append(False)
             self._obj_class_names.append(cls_name)
 
-    def get_stats(self):
+    def get_stats(self) -> TagsStats:
         tag_to_geom_types = defaultdict(set)
         for tag_name, class_names in self._tag_to_classes.items():
             g_types = tag_to_geom_types[tag_name]
