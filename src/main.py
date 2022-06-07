@@ -173,8 +173,7 @@ def test_handler(request: Request):
     return 'mm'
 
 
-@sly.timeit
-def tags_to_classes(api: sly.Api, selected_tags: List[str], result_project_name: str):
+def test_some():
     sly.logger.info('main run')
     while True:
         sly.logger.info('wait a minute...')
@@ -182,6 +181,8 @@ def tags_to_classes(api: sly.Api, selected_tags: List[str], result_project_name:
 
 
 """
+@sly.timeit
+def tags_to_classes(api: sly.Api, selected_tags: List[str], result_project_name: str):
     project = ProjectCommons(api, g.project_id)
 
     if not result_project_name:
@@ -256,12 +257,13 @@ if __name__ == '__main__':
             'context.teamId': g.team_id,
             'context.workspaceId': g.workspace_id,
             'modal.state.slyProjectId': g.project_id,
-            'modal.state.selectedTags.tags': g.selected_tags,
-            'modal.state.resultProjectName': g.res_project_name
+            # 'modal.state.selectedTags.tags': g.selected_tags,
+            # 'modal.state.resultProjectName': g.res_project_name
         },
     )
 
-    tags_to_classes(g.api, g.selected_tags, g.res_project_name)
+    # tags_to_classes(g.api, g.selected_tags, g.res_project_name)
+    test_some()
 
     try:
         sly.app.fastapi.shutdown()
