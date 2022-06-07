@@ -194,7 +194,7 @@ def tags_to_classes(api: sly.Api, selected_tags: List[str], result_project_name:
 
     # Step 1: check selected tags
 
-    appropriate_tag_names = [t for t in selected_tags if tag_is_appropriate(t, project, tags_stats)]
+    appropriate_tag_names = [t for t in set(selected_tags) if tag_is_appropriate(t, project, tags_stats)]
 
     ensure_tag_set_is_appropriate(appropriate_tag_names, tags_stats)
 
