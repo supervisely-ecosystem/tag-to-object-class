@@ -50,4 +50,3 @@ sly.logger.info(
         'modal.state.slyProjectId': project_id,
     },
 )
-sly.logger.info(f'{os.environ=!r}')
