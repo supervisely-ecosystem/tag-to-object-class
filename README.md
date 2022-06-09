@@ -24,11 +24,11 @@ This app takes tags assigned to labeled objects and creates new object classes w
 
 Initially you select a set of tags to create classes from it. It is expected that each object in source project is associated with only one tag from the set.
 
-After conversion the tags from the selected set will be removed and appropriate new classes will be created.
+After conversion the tags from the selected set will be removed and appropriate new classes will be created. For example, an object associated with tag `Orange` will belong to class `Orange`.
 
 #### Technical note.
 1. Only tags without values (tag type `None`) are accepted.
-2. If some objects are not associated with any of selected tags, then classes of the objects will remain.
+2. If some objects are not associated with any of selected tags, then classes of the objects will remain. Otherwise, unused classes will be removed.
 3. If there is a tag associated with objects of different shapes (e.g., `Rectangle` and `Bitmap`) the conversion is impossible.
 
 
