@@ -1,12 +1,13 @@
 {
   "name": "Tags to object classes",
   "type": "app",
+  "version": "2.0.0",
   "categories": [
     "Tag",
     "Project Classes"
   ],
   "description": "Create new object classes from tags associated with objects",
-  "instance_version": "6.4.51",
+  "instance_version": "6.4.55",
   "docker_image": "supervisely/base-py-sdk:6.18.1",
   "entrypoint": "python -m uvicorn src.main:g.app --host 0.0.0.0 --port 8000",
   "port": 8000,
