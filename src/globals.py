@@ -5,7 +5,8 @@ import sys
 import supervisely as sly
 
 from fastapi import FastAPI
-from supervisely.app.fastapi import create
+from starlette.staticfiles import StaticFiles
+from supervisely.app.fastapi import create, Jinja2Templates
 from supervisely.app.content import get_data_dir
 
 
@@ -20,6 +21,10 @@ sly.logger.info(f'App data directory: {data_directory!r}  Temporary data directo
 app = FastAPI()
 sly_app = create()
 app.mount('/sly', sly_app)
+app.mount("/static", StaticFiles(directory=os.path.join(app_root_directory, 'static')), name="static")
+
+templates_env = Jinja2Templates(directory=os.path.join(app_root_directory, 'templates'))
+
 api = sly.Api.from_env()
 
 task_id = int(os.environ['TASK_ID'])
