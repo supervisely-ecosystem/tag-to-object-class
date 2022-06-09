@@ -41,3 +41,13 @@ if not (isinstance(selected_tags, list) and all(isinstance(item, str) for item i
 res_project_name = os.getenv('modal.state.resultProjectName', None)
 """
 anns_in_memory_limit = os.getenv('ANNS_IN_MEMORY_LIMIT', 1000)
+
+sly.logger.info(
+    'Script arguments',
+    extra={
+        'context.teamId': team_id,
+        'context.workspaceId': workspace_id,
+        'modal.state.slyProjectId': project_id,
+    },
+)
+sly.logger.info(f'{os.environ=!r}')

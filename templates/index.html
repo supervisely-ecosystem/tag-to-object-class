@@ -31,11 +31,7 @@
             </sly-card>
             <sly-field title="Some field" description="Field description">
                 <div>
-                    <el-input v-model="state.testInputText" v-on:change="
-                        (val) => {
-                            post('/dummy_old_route/');
-                        }
-                        "></el-input>
+                    <el-input v-model="state.testInputText" v-on:change="post('/dummy_old_route/');"></el-input>
                 </div>
             </sly-field>
         </template>
