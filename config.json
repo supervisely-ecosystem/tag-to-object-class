@@ -4,7 +4,7 @@
   "categories": [
     "images",
     "annotation transformation",
-    "data-operations"
+    "data operations"
   ],
   "description": "Create new object classes from tags associated with objects",
   "instance_version": "6.4.55",
