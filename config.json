@@ -3,7 +3,8 @@
   "type": "app",
   "categories": [
     "images",
-    "annotation transformation"
+    "annotation transformation",
+    "data-operations"
   ],
   "description": "Create new object classes from tags associated with objects",
   "instance_version": "6.4.55",
