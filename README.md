@@ -8,10 +8,10 @@
   <a href="#How-To-Run">How To Run</a>
 </p>
 
-[![](https://img.shields.io/badge/slack-chat-green.svg?logo=slack)](https://supervise.ly/slack)
+[![](https://img.shields.io/badge/slack-chat-green.svg?logo=slack)](https://supervisely.com/slack)
 ![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/supervisely-ecosystem/tag-to-object-class)
-[![views](https://app.supervise.ly/img/badges/views/supervisely-ecosystem/tag-to-object-class.png)](https://supervise.ly)
-[![runs](https://app.supervise.ly/img/badges/runs/supervisely-ecosystem/tag-to-object-class.png)](https://supervise.ly)
+[![views](https://app.supervisely.com/img/badges/views/supervisely-ecosystem/tag-to-object-class.png)](https://supervisely.com)
+[![runs](https://app.supervisely.com/img/badges/runs/supervisely-ecosystem/tag-to-object-class.png)](https://supervisely.com)
 
 </div>
 
@@ -19,7 +19,7 @@
 
 This app takes tags assigned to labeled objects and creates new object classes with same names from the tags.
 
-<img src="https://github.com/supervisely-ecosystem/tag-to-object-class/releases/download/v0.1.0/info.png" width="20px"/> Hint: the action can be seen as inversion of applying [Object Classes To Tags](https://ecosystem.supervise.ly/apps/object-class-to-tag) app.
+<img src="https://github.com/supervisely-ecosystem/tag-to-object-class/releases/download/v0.1.0/info.png" width="20px"/> Hint: the action can be seen as inversion of applying [Object Classes To Tags](https://ecosystem.supervisely.com/apps/object-class-to-tag) app.
 
 Initially you select a set of tags to create classes from it. It is expected that each object in source project is associated with only one tag from the set.
 
@@ -33,7 +33,7 @@ After conversion the tags from the selected set will be removed and appropriate 
 
 ## How To Run
 
-**Step 1**: Add app to your team from [Ecosystem](https://ecosystem.supervise.ly/) if it is not there.
+**Step 1**: Add app to your team from [Ecosystem](https://ecosystem.supervisely.com/) if it is not there.
 
 <img src="https://github.com/supervisely-ecosystem/tag-to-object-class/releases/download/v0.1.0/shot00.png"/>
 
