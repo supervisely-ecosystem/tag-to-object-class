@@ -48,8 +48,10 @@ def tag_is_appropriate(tag_name: str, project: ProjectCommons, tags_stats: TagsS
 def ensure_tag_set_is_appropriate(tag_names: List[str], tags_stats: TagsStats) -> None:
     if not tags_stats.have_not_intersected(tag_names):
         example = tags_stats.example_intersected(tag_names)
-        raise ValueError(f'Inappropriate tag set: object associated with some tags is found. '
-                         f'Wrong tags example: {example}')
+        guide_link = "https://developer.supervisely.com/getting-started/python-sdk-tutorials/images/image-and-object-tags#retrieve-images-with-object-tags-of-interest"
+        raise ValueError(f'Found object(s) containing multiple tags from selected set. '
+                         f'Tag names example: {example}. '
+                         f'See how to retrieve such images here: {guide_link}')
 
     class_names_rest = tags_stats.classes_not_covered_entirely(tag_names)
     class_tag_name_inters = set(tag_names).intersection(class_names_rest)
