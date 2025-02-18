@@ -7,7 +7,7 @@
         "data operations"
     ],
     "description": "Create new object classes from tags associated with objects",
-    "instance_version": "6.4.55",
+    "instance_version": "6.10.0",
     "docker_image": "supervisely/data-operations:6.72.157",
     "main_script": "src/main.py",
     "modal_template": "src/modal.html",
