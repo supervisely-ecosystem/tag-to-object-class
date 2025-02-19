@@ -23,7 +23,7 @@
             "description": "From which tags new classes will be created.",
             "options": {
                 "multiple": true,
-                "size": "small",
+                "size": "default",
                 "availableValueTypes": [
                     "none"
                 ]
