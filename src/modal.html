@@ -6,8 +6,8 @@
       <el-input v-model="state.resultProjectName"></el-input>
     </sly-field>
     <el-checkbox v-model="state.handleMulti">Handle multiple tags on a single object</el-checkbox>
-    <el-select v-if="state.handleMulti" v-model="state.handleOption" placeholder="Select an option">
-      <el-option label="Ignore any tags after the first" value="ignore"></el-option>
-      <el-option label="Create object for each tag" value="create"></el-option>
+    <el-select v-if="state.handleMulti" class="mt5" v-model="state.handleOption" placeholder="Select an option"></el-select>
+      <el-option label="Ignore" value="ignore" description="Convert object using first tag"></el-option>
+      <el-option label="Create for each" value="create" description="Create object for each object tag"></el-option>
     </el-select>
 </sly-field>

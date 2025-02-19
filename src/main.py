@@ -51,7 +51,8 @@ def ensure_tag_set_is_appropriate(tag_names: List[str], tags_stats: TagsStats) -
         guide_link = "https://developer.supervisely.com/getting-started/python-sdk-tutorials/images/image-and-object-tags#retrieve-images-with-object-tags-of-interest"
         raise ValueError(f'Found object(s) containing multiple tags from selected set. '
                          f'Tag names example: {example}. '
-                         f'See how to retrieve such images here: {guide_link}')
+                         f'Check "Handle multiple tags on a single object" option in the modal window, or '
+                         f'see how to retrieve such images here: "{guide_link}"')
 
     class_names_rest = tags_stats.classes_not_covered_entirely(tag_names)
     class_tag_name_inters = set(tag_names).intersection(class_names_rest)
@@ -233,11 +234,13 @@ def tags_to_classes(api: sly.Api, selected_tags: List[str], result_project_name:
         api.annotation.upload_anns([i.id for i in new_img_infos], res_anns)
 
         progress.iters_done_report(len(img_ids))
-    if g.handle_multiple_tags and converted_imgids:
+
+    sly.logger.debug('Converted image ids', extra={'converted_image_ids': list(converted_imgids)})
+    if g.handle_multiple_tags is True and len(converted_imgids) > 0:
         sly.logger.warn(
             f'Objects with multiple tags have been converted using {g.handle_option} method. '
             f'Count of images featuring objects with multiple tags: {len(converted_imgids)}',
-            extra={'image_ids': list(converted_imgids)}
+            extra={'original image_ids': list(converted_imgids)}
         )
     sly.logger.debug('Finished tags_to_classes')
 
@@ -250,7 +253,9 @@ if __name__ == '__main__':
             'context.workspaceId': g.workspace_id,
             'modal.state.slyProjectId': g.project_id,
             'modal.state.selectedTags.tags': g.selected_tags,
-            'modal.state.resultProjectName': g.res_project_name
+            'modal.state.resultProjectName': g.res_project_name,
+            'modal.state.handleMulti': g.handle_multiple_tags,
+            'modal.state.handleOption': g.handle_option
         },
     )
 
