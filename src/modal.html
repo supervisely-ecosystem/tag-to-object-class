@@ -5,4 +5,9 @@
     <sly-field title="New project name" :description="data.resultProjectName.description">
       <el-input v-model="state.resultProjectName"></el-input>
     </sly-field>
+    <el-checkbox v-model="state.handleMulti">Handle multiple tags on a single object</el-checkbox>
+    <el-select v-if="state.handleMulti" class="mt5" v-model="state.handleOption" placeholder="Select an option">
+      <el-option label="Ignore: Convert object using first tag" value="ignore"></el-option>
+      <el-option label="Create: Create object for each tag" value="create"></el-option>
+    </el-select>
 </sly-field>

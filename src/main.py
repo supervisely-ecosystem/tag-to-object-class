@@ -46,16 +46,17 @@ def tag_is_appropriate(tag_name: str, project: ProjectCommons, tags_stats: TagsS
 
 
 def ensure_tag_set_is_appropriate(tag_names: List[str], tags_stats: TagsStats) -> None:
-    if not tags_stats.have_not_intersected(tag_names):
+    if not tags_stats.have_not_intersected(tag_names) and not g.handle_multiple_tags:
         example = tags_stats.example_intersected(tag_names)
         guide_link = "https://developer.supervisely.com/getting-started/python-sdk-tutorials/images/image-and-object-tags#retrieve-images-with-object-tags-of-interest"
         raise ValueError(f'Found object(s) containing multiple tags from selected set. '
                          f'Tag names example: {example}. '
-                         f'See how to retrieve such images here: {guide_link}')
+                         f'Check "Handle multiple tags on a single object" option in the modal window, or '
+                         f'see how to retrieve such images here: "{guide_link}"')
 
     class_names_rest = tags_stats.classes_not_covered_entirely(tag_names)
     class_tag_name_inters = set(tag_names).intersection(class_names_rest)
-    if class_tag_name_inters:
+    if class_tag_name_inters and not g.handle_multiple_tags:
         raise ValueError(f'Inappropriate tag set: some tag has same name with remaining class. '
                          f'Wrong names: {class_tag_name_inters}')
 
@@ -117,11 +118,13 @@ class AnnConvertor:
         self.src_meta = src_meta
         self.res_meta = res_meta
 
+        self.multiple_tags_converted = False
+
     def convert(self, ann: sly.Annotation):
+        self.multiple_tags_converted = False
         res_labels = self._convert_labels(ann.labels)
         res_img_tags = self._convert_tags(ann.img_tags, tags_to_rm=set())
-        res_ann = ann.clone(labels=res_labels, img_tags=res_img_tags)
-        return res_ann
+        return ann.clone(labels=res_labels, img_tags=res_img_tags)
 
     def _convert_tags(self, tags: sly.TagCollection, tags_to_rm: Set[str]):
         return sly.TagCollection([self._convert_tag(t) for t in tags if t.name not in tags_to_rm])
@@ -131,19 +134,22 @@ class AnnConvertor:
         return tag.clone(meta=new_tag_meta)
 
     def _convert_labels(self, labels: List[sly.Label]):
-        return [self._convert_label(lbl) for lbl in labels]
+        ignore_multiple_tags = g.handle_option == 'ignore'
+        return [new_label for lbl in labels for new_label in self._convert_label(lbl, ignore_multiple_tags)]
 
-    def _convert_label(self, label: sly.Label):
+    def _convert_label(self, label: sly.Label, ignore_multiple_tags: bool = True):
         important_tags = self.tags_to_convert.intersection(t.name for t in label.tags)
-        assert len(important_tags) < 2
         if not important_tags:
-            new_name = label.obj_class.name
-        else:
-            new_name = next(iter(important_tags))
-
-        new_cls = self.res_meta.obj_classes.get(new_name)
-        new_tags = self._convert_tags(label.tags, tags_to_rm=important_tags)
-        return label.clone(obj_class=new_cls, tags=new_tags)
+            yield label
+            return
+        
+        if len(important_tags) > 1:
+            self.multiple_tags_converted = True
+        important_tags = list(important_tags) if not ignore_multiple_tags else [next(iter(important_tags))]
+        for tag_name in important_tags:
+            new_cls = self.res_meta.obj_classes.get(tag_name)
+            new_tags = self._convert_tags(label.tags, tags_to_rm=important_tags)
+            yield label.clone(obj_class=new_cls, tags=new_tags)
 
 
 class DatasetShadowCreator:
@@ -215,17 +221,26 @@ def tags_to_classes(api: sly.Api, selected_tags: List[str], result_project_name:
     ann_convertor = AnnConvertor(appropriate_tag_names, src_meta=project.meta, res_meta=res_meta)
     dataset_creator = DatasetShadowCreator(api, res_project_info.id)
     progress = sly.Progress('Converting classes', len(project))
+    converted_imgids = set()
     for ds_info, img_ids, img_hashes, img_names in project.iterate_batched():
         res_ds_info = dataset_creator.get_new(ds_info)
 
-        anns = ann_provider.get_anns_by_img_ids(ds_info.id, img_ids)
-        res_anns = [ann_convertor.convert(ann) for ann in anns]
-
+        res_anns = []
+        for idx, ann in enumerate(ann_provider.get_anns_by_img_ids(ds_info.id, img_ids)):
+            res_anns.append(ann_convertor.convert(ann)) 
+            if ann_convertor.multiple_tags_converted:
+                converted_imgids.add(img_ids[idx])
         new_img_infos = api.image.upload_ids(res_ds_info.id, names=img_names, ids=img_ids)
         api.annotation.upload_anns([i.id for i in new_img_infos], res_anns)
 
         progress.iters_done_report(len(img_ids))
 
+    if g.handle_multiple_tags is True and len(converted_imgids) > 0:
+        sly.logger.warn(
+            f'Objects with multiple tags have been converted using {g.handle_option} method. '
+            f'Count of images featuring objects with multiple tags: {len(converted_imgids)}',
+            extra={'original image_ids': list(converted_imgids)}
+        )
     sly.logger.debug('Finished tags_to_classes')
 
 
@@ -237,7 +252,9 @@ if __name__ == '__main__':
             'context.workspaceId': g.workspace_id,
             'modal.state.slyProjectId': g.project_id,
             'modal.state.selectedTags.tags': g.selected_tags,
-            'modal.state.resultProjectName': g.res_project_name
+            'modal.state.resultProjectName': g.res_project_name,
+            'modal.state.handleMulti': str(g.handle_multiple_tags),
+            'modal.state.handleOption': g.handle_option,
         },
     )
 

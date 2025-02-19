@@ -4,3 +4,4 @@ __pycache__
 debug_data
 supervisely
 venv
+.venv

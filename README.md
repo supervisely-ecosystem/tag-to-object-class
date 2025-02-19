@@ -23,6 +23,11 @@ This app takes tags assigned to labeled objects and creates new object classes w
 
 Initially you select a set of tags to create classes from it. It is expected that each object in source project is associated with only one tag from the set.
 
+Optionally, if your data contains objects with multiple tags, you can toggle the "Handle multiple tags on a single object" option to set the desired behavior.
+
+- "Ignore: Convert object using first tag" – The object will be converted using the first tag, and all other tags will remain.
+- "Create: Create object for each tag" – A separate object will be created for each tag.
+
 After conversion the tags from the selected set will be removed and appropriate new classes will be created. For example, an object associated with tag `Orange` will belong to class `Orange`.
 
 #### Technical note.
