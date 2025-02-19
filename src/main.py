@@ -142,7 +142,9 @@ class AnnConvertor:
         if not important_tags:
             yield label
             return
-        self.multiple_tags_converted = len(important_tags) > 1
+        
+        if len(important_tags) > 1:
+            self.multiple_tags_converted = True
         important_tags = list(important_tags) if not ignore_multiple_tags else [next(iter(important_tags))]
         for tag_name in important_tags:
             new_cls = self.res_meta.obj_classes.get(tag_name)
@@ -224,9 +226,8 @@ def tags_to_classes(api: sly.Api, selected_tags: List[str], result_project_name:
     for ds_info, img_ids, img_hashes, img_names in project.iterate_batched():
         res_ds_info = dataset_creator.get_new(ds_info)
 
-        anns = ann_provider.get_anns_by_img_ids(ds_info.id, img_ids)
         res_anns = []
-        for idx, ann in enumerate(anns):
+        for idx, ann in enumerate(ann_provider.get_anns_by_img_ids(ds_info.id, img_ids)):
             res_anns.append(ann_convertor.convert(ann)) 
             if ann_convertor.multiple_tags_converted:
                 converted_imgids.add(img_ids[idx])
@@ -235,8 +236,6 @@ def tags_to_classes(api: sly.Api, selected_tags: List[str], result_project_name:
 
         progress.iters_done_report(len(img_ids))
 
-    sly.logger.debug(f'Handle multiple tags: {g.handle_multiple_tags}')
-    sly.logger.debug('Converted image ids', extra={'converted_image_ids': list(converted_imgids)})
     if g.handle_multiple_tags is True and len(converted_imgids) > 0:
         sly.logger.warn(
             f'Objects with multiple tags have been converted using {g.handle_option} method. '
