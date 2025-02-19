@@ -235,6 +235,7 @@ def tags_to_classes(api: sly.Api, selected_tags: List[str], result_project_name:
 
         progress.iters_done_report(len(img_ids))
 
+    sly.logger.debug(f'Handle multiple tags: {g.handle_multiple_tags}')
     sly.logger.debug('Converted image ids', extra={'converted_image_ids': list(converted_imgids)})
     if g.handle_multiple_tags is True and len(converted_imgids) > 0:
         sly.logger.warn(
