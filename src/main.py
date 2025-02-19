@@ -56,7 +56,7 @@ def ensure_tag_set_is_appropriate(tag_names: List[str], tags_stats: TagsStats) -
 
     class_names_rest = tags_stats.classes_not_covered_entirely(tag_names)
     class_tag_name_inters = set(tag_names).intersection(class_names_rest)
-    if class_tag_name_inters:
+    if class_tag_name_inters and not g.handle_multiple_tags:
         raise ValueError(f'Inappropriate tag set: some tag has same name with remaining class. '
                          f'Wrong names: {class_tag_name_inters}')
 
