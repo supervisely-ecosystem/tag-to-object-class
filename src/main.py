@@ -46,7 +46,7 @@ def tag_is_appropriate(tag_name: str, project: ProjectCommons, tags_stats: TagsS
 
 
 def ensure_tag_set_is_appropriate(tag_names: List[str], tags_stats: TagsStats) -> None:
-    if not tags_stats.have_not_intersected(tag_names):
+    if not tags_stats.have_not_intersected(tag_names) and not g.handle_multiple_tags:
         example = tags_stats.example_intersected(tag_names)
         guide_link = "https://developer.supervisely.com/getting-started/python-sdk-tutorials/images/image-and-object-tags#retrieve-images-with-object-tags-of-interest"
         raise ValueError(f'Found object(s) containing multiple tags from selected set. '
@@ -204,8 +204,7 @@ def tags_to_classes(api: sly.Api, selected_tags: List[str], result_project_name:
 
     appropriate_tag_names = [t for t in set(selected_tags) if tag_is_appropriate(t, project, tags_stats)]
 
-    if not g.handle_multiple_tags:
-        ensure_tag_set_is_appropriate(appropriate_tag_names, tags_stats)
+    ensure_tag_set_is_appropriate(appropriate_tag_names, tags_stats)
 
     # Step 2: convert annotations & upload
 
