@@ -254,8 +254,8 @@ if __name__ == '__main__':
             'modal.state.slyProjectId': g.project_id,
             'modal.state.selectedTags.tags': g.selected_tags,
             'modal.state.resultProjectName': g.res_project_name,
-            'modal.state.handleMulti': g.handle_multiple_tags,
-            'modal.state.handleOption': g.handle_option
+            'modal.state.handleMulti': str(g.handle_multiple_tags),
+            'modal.state.handleOption': g.handle_option,
         },
     )
 
