@@ -117,11 +117,13 @@ class AnnConvertor:
         self.src_meta = src_meta
         self.res_meta = res_meta
 
+        self.multiple_tags_converted = False
+
     def convert(self, ann: sly.Annotation):
+        self.multiple_tags_converted = False
         res_labels = self._convert_labels(ann.labels)
         res_img_tags = self._convert_tags(ann.img_tags, tags_to_rm=set())
-        res_ann = ann.clone(labels=res_labels, img_tags=res_img_tags)
-        return res_ann
+        return ann.clone(labels=res_labels, img_tags=res_img_tags)
 
     def _convert_tags(self, tags: sly.TagCollection, tags_to_rm: Set[str]):
         return sly.TagCollection([self._convert_tag(t) for t in tags if t.name not in tags_to_rm])
@@ -131,19 +133,20 @@ class AnnConvertor:
         return tag.clone(meta=new_tag_meta)
 
     def _convert_labels(self, labels: List[sly.Label]):
-        return [self._convert_label(lbl) for lbl in labels]
+        ignore_multiple_tags = g.handle_option == 'ignore'
+        return [new_label for lbl in labels for new_label in self._convert_label(lbl, ignore_multiple_tags)]
 
-    def _convert_label(self, label: sly.Label):
+    def _convert_label(self, label: sly.Label, ignore_multiple_tags: bool = True):
         important_tags = self.tags_to_convert.intersection(t.name for t in label.tags)
-        assert len(important_tags) < 2
         if not important_tags:
-            new_name = label.obj_class.name
-        else:
-            new_name = next(iter(important_tags))
-
-        new_cls = self.res_meta.obj_classes.get(new_name)
-        new_tags = self._convert_tags(label.tags, tags_to_rm=important_tags)
-        return label.clone(obj_class=new_cls, tags=new_tags)
+            yield label
+            return
+        self.multiple_tags_converted = len(important_tags) > 1
+        important_tags = list(important_tags) if not ignore_multiple_tags else [next(iter(important_tags))]
+        for tag_name in important_tags:
+            new_cls = self.res_meta.obj_classes.get(tag_name)
+            new_tags = self._convert_tags(label.tags, tags_to_rm=important_tags)
+            yield label.clone(obj_class=new_cls, tags=new_tags)
 
 
 class DatasetShadowCreator:
@@ -198,7 +201,8 @@ def tags_to_classes(api: sly.Api, selected_tags: List[str], result_project_name:
 
     appropriate_tag_names = [t for t in set(selected_tags) if tag_is_appropriate(t, project, tags_stats)]
 
-    ensure_tag_set_is_appropriate(appropriate_tag_names, tags_stats)
+    if not g.handle_multiple_tags:
+        ensure_tag_set_is_appropriate(appropriate_tag_names, tags_stats)
 
     # Step 2: convert annotations & upload
 
@@ -215,17 +219,26 @@ def tags_to_classes(api: sly.Api, selected_tags: List[str], result_project_name:
     ann_convertor = AnnConvertor(appropriate_tag_names, src_meta=project.meta, res_meta=res_meta)
     dataset_creator = DatasetShadowCreator(api, res_project_info.id)
     progress = sly.Progress('Converting classes', len(project))
+    converted_imgids = set()
     for ds_info, img_ids, img_hashes, img_names in project.iterate_batched():
         res_ds_info = dataset_creator.get_new(ds_info)
 
         anns = ann_provider.get_anns_by_img_ids(ds_info.id, img_ids)
-        res_anns = [ann_convertor.convert(ann) for ann in anns]
-
+        res_anns = []
+        for idx, ann in enumerate(anns):
+            res_anns.append(ann_convertor.convert(ann)) 
+            if ann_convertor.multiple_tags_converted:
+                converted_imgids.add(img_ids[idx])
         new_img_infos = api.image.upload_ids(res_ds_info.id, names=img_names, ids=img_ids)
         api.annotation.upload_anns([i.id for i in new_img_infos], res_anns)
 
         progress.iters_done_report(len(img_ids))
-
+    if g.handle_multiple_tags and converted_imgids:
+        sly.logger.warn(
+            f'Objects with multiple tags have been converted using {g.handle_option} method. '
+            f'Count of images featuring objects with multiple tags: {len(converted_imgids)}',
+            extra={'image_ids': list(converted_imgids)}
+        )
     sly.logger.debug('Finished tags_to_classes')
 
 

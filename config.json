@@ -14,14 +14,16 @@
     "modal_template_state": {
         "selectedTags": {
             "tags": []
-        }
+        },
+        "handleMulti": false,
+        "handleOption": "ignore"
     },
     "modal_template_data": {
         "selectedTags": {
             "description": "From which tags new classes will be created.",
             "options": {
                 "multiple": true,
-                "size": "large",
+                "size": "small",
                 "availableValueTypes": [
                     "none"
                 ]
