@@ -19,7 +19,7 @@
 
 This app takes tags assigned to labeled objects and creates new object classes with same names from the tags.
 
-<img src="https://github.com/supervisely-ecosystem/tag-to-object-class/releases/download/v0.1.0/info.png" width="20px"/> Hint: the action can be seen as inversion of applying [Object Classes To Tags](https://ecosystem.supervisely.com/apps/object-class-to-tag) app.
+<img src="https://github.com/supervisely-ecosystem/tag-to-object-class/releases/download/v0.1.0/info.png" width="20px"/> Hint: the action can be seen as inversion of applying [Object Classes To Tags](../../../../supervisely-ecosystem/object-class-to-tag) app.
 
 Initially you select a set of tags to create classes from it. It is expected that each object in source project is associated with only one tag from the set.
 
